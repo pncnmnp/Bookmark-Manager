@@ -13,13 +13,9 @@ class Scrape_Filter():
 		req = Article(url)
 		req.download()
 		soup = BeautifulSoup(req.html, 'html.parser')
-		desc_keywords = self.get_title_and_description(soup)
+		return soup, req
 
-		if desc_keywords == None:
-			req.parse()
-			self.filter_text(str(req.text).lower())
-
-	def get_title_and_description(self, soup):
+	def get_keywords_and_description(self, soup):
 		desc = [soup.find_all('meta', attrs={'name':'og:description'}), 
 		        soup.find_all('meta', attrs={'property':'description'}), 
 		        soup.find_all('meta', attrs={'name':'description'}), 
@@ -29,10 +25,8 @@ class Scrape_Filter():
 		desc = [content[0]['content'] for content in desc if content != list()]
 
 		if desc == list() and keywords == list():
-			print(desc_keywords)
 			return None
 		else:
-			print(keywords, desc)
 			return {'keywords': keywords, 'desc': desc}
 
 	def filter_text(self, text):
@@ -44,8 +38,15 @@ class Scrape_Filter():
 		for word in text.split():
 			if word.isalpha() and word not in self.stopwords:
 				vocabulary.append(self.lemm.lemmatize(word))
-		print(vocabulary)
+
+		return vocabulary
 
 if __name__ == '__main__':
 	obj = Scrape_Filter()
-	obj.get_bookmark_link('https://github.com')
+	soup, req = obj.get_bookmark_link('https://reuters.com')
+	req.parse()
+	desc_keywords = obj.get_keywords_and_description(soup)
+	content = obj.filter_text(req.text)
+
+	print(desc_keywords)
+	print(content)
