@@ -1,0 +1,8 @@
+{
+	"news": ["digital_media", "news", "newspaper", "online_newspaper"],
+	"programming": ["computers", "computer_science", "programming"],
+	"shopping": ["e_commerce", "online_shopping", "digital_distribution", "mobile_payment"],
+	"technology": ["technology"],
+	"social": ["social_media", "social_media_marketing", "list_of_social_networking_websites"],
+	"business": ["business", "entrepreneurship", "economics", "electronic_business"]
+}
