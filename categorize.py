@@ -19,7 +19,7 @@ class Categorize():
 		wiki, keywords, desc = str(), str(), list()
 
 		if desc_keywords == None and content == list():
-			wiki = obj.get_wikipedia(title)
+			wiki = self.scrape.get_wikipedia(title)
 		else:
 			try:
 				keywords = desc_keywords['keywords'][0]
@@ -46,8 +46,9 @@ class Categorize():
 
 		for content in vocab['desc']:
 			bookmark_vocab += ' ' + content
-		for content in vocab['content']:
-			bookmark_vocab += ' ' + content
+		# Commenting the below tow lines will drastically increase the speed
+		# for content in vocab['content']:
+		# 	bookmark_vocab += ' ' + content
 
 		for punct in punctuation:
 			if punct in bookmark_vocab:
@@ -95,7 +96,6 @@ class Categorize():
 		target_dir_score = -100000000000
 
 		for corpus in corpus_dir:
-			print(corpus)
 			corpus_vocab, len_corpus = self.get_corpus_vocab(corpus)
 			corpus_non_vocab = self.get_non_corpus_vocab(corpus)
 			p_vj = len_corpus/total_len_corpus
@@ -114,19 +114,20 @@ class Categorize():
 
 				corpus_is += p_is
 				corpus_is_not += p_is_not
+				delta = abs(corpus_is_not - corpus_is)
 
-			if corpus_is > corpus_is_not:
+			if corpus_is > corpus_is_not or delta < 10:
 				if corpus_is > target_dir_score:
 					target_dir = corpus
 					target_dir_score = corpus_is
 
-			print(corpus, corpus_is, corpus_is_not)
+			print(target_dir, corpus_is, corpus_is_not)
 
 		return target_dir, target_dir_score
 
 if __name__ == '__main__':
 	obj = Categorize()
-	vocab = obj.get_vocabulary('https://timesofindia.indiatimes.com/')
+	vocab = obj.get_vocabulary('https://facebook.com')
 	bookmark_vocab = obj.convert_vocabulary(vocab)
 	category = obj.naive_bayes(bookmark_vocab)
 	print("\nCATEGORY: \n")
