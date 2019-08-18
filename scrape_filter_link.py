@@ -14,7 +14,8 @@ class Scrape_Filter():
 		req = Article(url)
 		req.download()
 		soup = BeautifulSoup(req.html, 'html.parser')
-		return soup, req
+		req.parse()
+		return soup, req.text
 
 	def get_title(self, soup):
 		if soup.title.string.find('|') != -1:
@@ -30,7 +31,11 @@ class Scrape_Filter():
 		        soup.find_all('meta', attrs={'property': 'og:description'})]
 		keywords = soup.find_all('meta', attrs={'name': 'keywords'})
 
-		desc = [content[0]['content'] for content in desc if content != list()]
+		try:
+			desc = [content[0]['content'] for content in desc if content != list()]
+			keywords = keywords[0]['content']
+		except:
+			pass
 
 		if desc == list() and keywords == list():
 			return None
@@ -58,11 +63,10 @@ class Scrape_Filter():
 
 if __name__ == '__main__':
 	obj = Scrape_Filter()
-	soup, req = obj.get_bookmark_link('https://gmail.com')
-	req.parse()
+	soup, req_text = obj.get_bookmark_link('https://cashkaro.com')
 	title = obj.get_title(soup)
 	desc_keywords = obj.get_keywords_and_description(soup)
-	content = obj.filter_text(req.text)
+	content = obj.filter_text(req_text)
 
 	print(title)
 	print(desc_keywords)
