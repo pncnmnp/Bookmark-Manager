@@ -4,6 +4,7 @@ from glob import glob
 from string import punctuation
 from math import log10
 import json
+from random import shuffle
 
 class Categorize():
 	def __init__(self):
@@ -18,7 +19,7 @@ class Categorize():
 		content = self.scrape.filter_text(req_text)
 		wiki, keywords, desc = str(), str(), list()
 
-		if desc_keywords == None and content == list():
+		if desc_keywords == None and content == list() and title != str():
 			wiki = self.scrape.get_wikipedia(title)
 		else:
 			try:
@@ -47,8 +48,8 @@ class Categorize():
 		for content in vocab['desc']:
 			bookmark_vocab += ' ' + content
 		# Commenting the below tow lines will drastically increase the speed
-		# for content in vocab['content']:
-		# 	bookmark_vocab += ' ' + content
+		for content in vocab['content']:
+			bookmark_vocab += ' ' + content
 
 		for punct in punctuation:
 			if punct in bookmark_vocab:
@@ -121,14 +122,26 @@ class Categorize():
 					target_dir = corpus
 					target_dir_score = corpus_is
 
-			print(target_dir, corpus_is, corpus_is_not)
-
 		return target_dir, target_dir_score
 
 if __name__ == '__main__':
 	obj = Categorize()
-	vocab = obj.get_vocabulary('https://facebook.com')
-	bookmark_vocab = obj.convert_vocabulary(vocab)
-	category = obj.naive_bayes(bookmark_vocab)
-	print("\nCATEGORY: \n")
-	print(category)
+	links = json.load(open('links.json'))
+	result = {}
+	shuffle(links)
+
+	for link in links[:10]:
+		try:
+			if link.startswith('https://') or link.startswith('http://'):
+				vocab = obj.get_vocabulary(link)
+			else:
+				vocab = obj.get_vocabulary('http://' + link)
+			bookmark_vocab = obj.convert_vocabulary(vocab)
+			category = obj.naive_bayes(bookmark_vocab)
+			print(link + ' : ' + category[0])
+			result[link] = category[0]
+		except:
+			print(link + ' : ' + "Failed")
+
+	with open('result.json', 'w') as fp:
+		json.dump(result, fp)

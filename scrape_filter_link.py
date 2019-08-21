@@ -18,11 +18,13 @@ class Scrape_Filter():
 		return soup, req.text
 
 	def get_title(self, soup):
-		if soup.title.string.find('|') != -1:
+		if soup.title != None and soup.title.string.find('|') != -1:
 			title = soup.title.string.split('|')[0]
 			return title.strip()
-		else:
+		elif soup.title != None:
 			return soup.title.string
+		else:
+			return str()
 
 	def get_keywords_and_description(self, soup):
 		desc = [soup.find_all('meta', attrs={'name':'og:description'}), 
@@ -58,7 +60,11 @@ class Scrape_Filter():
 		API_BEFORE = "https://en.wikipedia.org/w/api.php?action=opensearch&origin=*&search="
 		API_AFTER = "&limit=1&namespace=0&format=json"
 		req = requests.get(API_BEFORE+title+API_AFTER)
-		corpus = req.json()[2][0]
+		corpus = str()
+		try:
+			corpus = req.json()[2][0]
+		except:
+			pass
 		return corpus
 
 if __name__ == '__main__':
