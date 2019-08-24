@@ -1,10 +1,11 @@
-from scrape_filter_link import Scrape_Filter
+from scrape_filter_link import Scrape_Filter, LangError
 from get_corpus import DIR_LOC, CORPUSES
 from glob import glob
 from string import punctuation
 from math import log10
 import json
 from random import shuffle
+from time import time
 
 class Categorize():
 	def __init__(self):
@@ -17,6 +18,7 @@ class Categorize():
 		desc_keywords = self.scrape.get_keywords_and_description(soup)
 		title = self.scrape.get_title(soup)
 		content = self.scrape.filter_text(req_text)
+		content = str()
 		wiki, keywords, desc = str(), str(), list()
 
 		if desc_keywords == None and content == list() and title != str():
@@ -48,8 +50,8 @@ class Categorize():
 		for content in vocab['desc']:
 			bookmark_vocab += ' ' + content
 		# Commenting the below tow lines will drastically increase the speed
-		for content in vocab['content']:
-			bookmark_vocab += ' ' + content
+		# for content in vocab['content']:
+		# 	bookmark_vocab += ' ' + content
 
 		for punct in punctuation:
 			if punct in bookmark_vocab:
@@ -94,7 +96,7 @@ class Categorize():
 		vocab_entire_corpus = len(set(entire_corpus.split(' ')))
 
 		target_dir = str()
-		target_dir_score = -100000000000
+		target_dir_score, target_dir_delta = -100000000000, 100000000000
 
 		for corpus in corpus_dir:
 			corpus_vocab, len_corpus = self.get_corpus_vocab(corpus)
@@ -118,9 +120,12 @@ class Categorize():
 				delta = abs(corpus_is_not - corpus_is)
 
 			if corpus_is > corpus_is_not or delta < 10:
-				if corpus_is > target_dir_score:
+				if ((corpus_is > target_dir_score) or 
+				    (delta < target_dir_delta and 
+				        abs(target_dir_score - corpus_is) <= 1)):
 					target_dir = corpus
 					target_dir_score = corpus_is
+					target_dir_delta = delta
 
 		return target_dir, target_dir_score
 
@@ -132,14 +137,18 @@ if __name__ == '__main__':
 
 	for link in links[:10]:
 		try:
+			curr_time = time()
 			if link.startswith('https://') or link.startswith('http://'):
 				vocab = obj.get_vocabulary(link)
 			else:
 				vocab = obj.get_vocabulary('http://' + link)
+			fetch_time = str(time() - curr_time)[:5]
 			bookmark_vocab = obj.convert_vocabulary(vocab)
 			category = obj.naive_bayes(bookmark_vocab)
-			print(link + ' : ' + category[0])
+			print(link + ' : ' + category[0] + '  Fetch time: ' + fetch_time)
 			result[link] = category[0]
+		except LangError:
+			print(link + ' : ' + "Failed, Language not english!")
 		except:
 			print(link + ' : ' + "Failed")
 

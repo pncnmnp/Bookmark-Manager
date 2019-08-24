@@ -4,5 +4,10 @@
 	"shopping": ["e_commerce", "online_shopping", "digital_distribution", "mobile_payment"],
 	"technology": ["technology"],
 	"social": ["social_media", "social_media_marketing", "list_of_social_networking_websites"],
-	"business": ["business", "entrepreneurship", "economics", "electronic_business"]
+	"business": ["business", "entrepreneurship", "economics", "electronic_business"],
+	"education": ["e-learning_(theory)", "online_learning_in_higher_education", "massive_open_online_course", "educational_technology"],
+	"search-engine": ["web_search_engine", "google"],
+	"sports": ["sport", "list_of_professional_sports_leagues", "list_of_sports_attendance_figures", "list_of_sports"],
+	"gaming": ["video_game", "online_game"],
+	"entertainment": ["web_television", "list_of_streaming_media_systems", "web_series", "podcast", "film_industry", "television_show", "streaming_media"]
 }

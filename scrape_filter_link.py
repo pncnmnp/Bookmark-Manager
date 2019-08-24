@@ -5,15 +5,26 @@ from nltk.stem import WordNetLemmatizer
 from string import punctuation
 import requests
 
+class LangError(Exception):
+	pass
+
 class Scrape_Filter():
 	def __init__(self):
 		self.stopwords = stopwords.words('english')
 		self.lemm = WordNetLemmatizer()
 
+	def check_lang(self, soup):
+		lang = soup.find('html', attrs={'lang': True})['lang']
+		if 'en' in lang:
+			return None
+		else:
+			raise LangError("Language not english!")
+
 	def get_bookmark_link(self, url):
 		req = Article(url)
 		req.download()
 		soup = BeautifulSoup(req.html, 'html.parser')
+		self.check_lang(soup)
 		req.parse()
 		return soup, req.text
 
