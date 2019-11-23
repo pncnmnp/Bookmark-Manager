@@ -6,6 +6,8 @@ from math import log10
 import json
 from random import shuffle
 from time import time
+from collections import Counter
+import os
 
 class Categorize():
 	def __init__(self):
@@ -130,6 +132,80 @@ class Categorize():
 
 		return target_dir, target_dir_score
 
+	def naive_bayes2(self, bookmark_vocab):
+		bookmark_vocab = [w for w in bookmark_vocab.lower().split(" ") if len(w) > 1]
+		corpus_dir = glob(DIR_LOC + "*/")
+		total_len_corpus = len(glob(DIR_LOC + "*/*.json"))
+
+		entire_corpus = self.get_entire_corpus_vocab()
+		vocab_entire_corpus = len(set(entire_corpus.split(" ")))
+
+		target_dir = str()
+		target_dir_score, target_dir_delta = -100000000000, 100000000000
+
+		for corpus in corpus_dir:
+
+			cache_path = os.path.join(corpus, "cache.json.ext")
+			if os.path.exists(cache_path):
+				with open(cache_path, "r") as f:
+					data = json.load(f)
+				frequency_corpus_vocab=data["frequency_corpus_vocab"]
+				frequency_corpus_non_vocab=data["frequency_corpus_non_vocab"]
+				words_corpus=data["words_corpus"]
+				non_words_corpus=data["non_words_corpus"]
+				corpus_is=data["corpus_is"]
+				corpus_is_not=data["corpus_is_not"]
+
+			else:
+				corpus_vocab, len_corpus = self.get_corpus_vocab(corpus)
+				corpus_non_vocab = self.get_non_corpus_vocab(corpus)
+				p_vj = len_corpus / total_len_corpus
+
+				corpus_is = log10(p_vj)
+				corpus_is_not = log10(1 - p_vj)
+				corpus_vocab = [w for w in corpus_vocab.split() if len(w) > 1]
+				corpus_non_vocab = [w for w in corpus_non_vocab.split() if len(w) > 1]
+
+				frequency_corpus_vocab = Counter(corpus_vocab)
+				frequency_corpus_non_vocab = Counter(corpus_non_vocab)
+
+				words_corpus = len(corpus_vocab)
+				non_words_corpus = len(corpus_non_vocab)
+
+				data = {
+					"frequency_corpus_vocab": frequency_corpus_vocab,
+					"frequency_corpus_non_vocab": frequency_corpus_non_vocab,
+					"words_corpus": words_corpus,
+					"non_words_corpus": non_words_corpus,
+					"corpus_is": corpus_is,
+					"corpus_is_not": corpus_is_not,
+				}
+				with open(cache_path, "w") as f:
+					json.dump(data, f,indent=2)
+
+			for word in bookmark_vocab:
+				word_match = frequency_corpus_vocab.get(word, 0)
+				p_is = log10((word_match + 1) / (words_corpus + vocab_entire_corpus))
+
+				non_word_match = frequency_corpus_non_vocab.get(word, 0)
+				p_is_not = log10(
+					(non_word_match + 1) / (non_words_corpus + vocab_entire_corpus)
+				)
+
+				corpus_is += p_is
+				corpus_is_not += p_is_not
+				delta = abs(corpus_is_not - corpus_is)
+
+			if corpus_is > corpus_is_not or delta < 10:
+				if (corpus_is > target_dir_score) or (
+					delta < target_dir_delta and abs(target_dir_score - corpus_is) <= 1
+				):
+					target_dir = corpus
+					target_dir_score = corpus_is
+					target_dir_delta = delta
+
+		return target_dir, target_dir_score
+
 if __name__ == '__main__':
 	obj = Categorize()
 	# links = json.load(open('links.json'))
@@ -144,7 +220,7 @@ if __name__ == '__main__':
 		try:
 			vocab = obj.get_vocabulary(link)
 			bookmark_vocab = obj.convert_vocabulary(vocab)
-			category = obj.naive_bayes(bookmark_vocab)
+			category = obj.naive_bayes2(bookmark_vocab)
 			print(link + ' : ' + category[0])
 			result[link] = category[0]
 		except LangError:
