@@ -68,6 +68,11 @@ class Categorize():
 
 		for file in json_files:
 			vocab += ' ' + json.load(open(file))['text']
+
+		for punct in punctuation:
+			if punct in vocab:
+				vocab.replace(punct, ' ')
+
 		return vocab.lower(), len(json_files)
 
 	def get_entire_corpus_vocab(self):
@@ -88,6 +93,11 @@ class Categorize():
 		for directory in corpus_dir:
 			corpus_vocab, len_corpus = self.get_corpus_vocab(directory)
 			vocab += ' ' + corpus_vocab
+
+		for punct in punctuation:
+			if punct in vocab:
+				vocab.replace(punct, ' ')
+
 		return vocab
 
 	def naive_bayes(self, bookmark_vocab):
@@ -209,7 +219,7 @@ class Categorize():
 if __name__ == '__main__':
 	obj = Categorize()
 	# links = json.load(open('links.json'))
-	links = ["https://en.wikipedia.org/wiki/Main_Page"]
+	links = ["https://old.reddit.com/"]
 	result = {}
 
 	BOOKMARKS_DATA = fetch_bookmarks(links)

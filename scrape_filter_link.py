@@ -1,4 +1,4 @@
-from newspaper import fulltext
+from newspaper import fulltext, Article
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -125,7 +125,13 @@ def fetch_bookmarks(urls):
 		soup = BeautifulSoup(req, 'html5lib')
 		obj.check_lang(soup)
 
-		text = fulltext(req)
+		try:
+			text = fulltext(req)
+		except:
+			article = Article(url)
+			article.download()
+			article.parse()
+			text = article.text
 		title = obj.get_title(soup)
 		desc_keywords = obj.get_keywords_and_description(soup)
 		content = obj.filter_text(text)
