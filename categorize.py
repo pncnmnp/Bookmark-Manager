@@ -1,4 +1,4 @@
-from scrape_filter_link import Scrape_Filter, LangError
+from scrape_filter_link import Scrape_Filter, LangError, fetch_bookmarks
 from get_corpus import DIR_LOC, CORPUSES
 from glob import glob
 from string import punctuation
@@ -11,14 +11,15 @@ class Categorize():
 	def __init__(self):
 		self.scrape = Scrape_Filter()
 		self.layout = json.load(open(CORPUSES))
+		self.bookmark_data = dict()
+
+	def load_bookmarks_data(self, bookmark_data):
+		self.bookmark_data = bookmark_data
 
 	def get_vocabulary(self, link):
-		soup, req_text = self.scrape.get_bookmark_link(link)
-
-		desc_keywords = self.scrape.get_keywords_and_description(soup)
-		title = self.scrape.get_title(soup)
-		content = self.scrape.filter_text(req_text)
-		content = str()
+		desc_keywords = self.bookmark_data[link]["desc"]
+		title = self.bookmark_data[link]["title"]
+		content = self.bookmark_data[link]["desc"]
 		wiki, keywords, desc = str(), str(), list()
 
 		if desc_keywords == None and content == list() and title != str():
@@ -131,26 +132,26 @@ class Categorize():
 
 if __name__ == '__main__':
 	obj = Categorize()
-	links = json.load(open('links.json'))
+	# links = json.load(open('links.json'))
+	links = ["https://en.wikipedia.org/wiki/Main_Page"]
 	result = {}
-	shuffle(links)
+
+	BOOKMARKS_DATA = fetch_bookmarks(links)
+	obj.load_bookmarks_data(BOOKMARKS_DATA)
+	# shuffle(links)
 
 	for link in links[:10]:
 		try:
-			curr_time = time()
-			if link.startswith('https://') or link.startswith('http://'):
-				vocab = obj.get_vocabulary(link)
-			else:
-				vocab = obj.get_vocabulary('http://' + link)
-			fetch_time = str(time() - curr_time)[:5]
+			vocab = obj.get_vocabulary(link)
 			bookmark_vocab = obj.convert_vocabulary(vocab)
 			category = obj.naive_bayes(bookmark_vocab)
-			print(link + ' : ' + category[0] + '  Fetch time: ' + fetch_time)
+			print(link + ' : ' + category[0])
 			result[link] = category[0]
 		except LangError:
 			print(link + ' : ' + "Failed, Language not english!")
-		except:
+		except Exception as err:
 			print(link + ' : ' + "Failed")
+			print(err)
 
 	with open('result.json', 'w') as fp:
 		json.dump(result, fp)
