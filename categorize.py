@@ -218,8 +218,8 @@ class Categorize():
 
 if __name__ == '__main__':
 	obj = Categorize()
-	# links = json.load(open('links.json'))
-	links = ["https://old.reddit.com/"]
+	links = json.load(open('links.json'))
+	# links = ["https://old.reddit.com/"]
 	result = {}
 
 	BOOKMARKS_DATA = fetch_bookmarks(links)
