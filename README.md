@@ -5,8 +5,17 @@ NLP based approach to automatically categorize your bookmarks!
 To understand this project in-depth, refer to my technical paper: [Bookmark Classification using Multinomial Naive Bayes Model](https://pncnmnp.github.io/blogs/bookmark-classification.pdf)
 
 ## How does this work ?
-* To run the code, run `categorize.py` after mentioning your bookmark links in var: `links`
+* Enter your bookmarks in **`./links.json`** file
+* To run the code, run `categorize.py`
 * `scrape_filter_link.py` contains the classes used to scrape information from each URL
+
+## What bookmarks is it categorizing ?
+It can categorize a variety of bookmarks. Currently it supports all the categories mentioned in the `./corpus/` directory.
+
+## Will I have to enter my bookmark links manually ?
+To a certain extent! For example: **Firefox** allows users to backup the bookmarks in a JSON format. You can extract the `uri` from that JSON file and feed it into `./links.json`.<br/>
+To backup your bookmarks in **Firefox**, press Ctrl+Shift+O, go to `Import and Backup` and then to `Backup`.<br/>
+**Chrome** users can check this post on [superuser](https://superuser.com/questions/325394/how-to-export-my-bookmarks-via-cli-in-google-chrome/1349857).
 
 ## Will the code create a directory structure with my bookmarks ?
 **No, the mapping of a URL with it's appropriate category is stored in a JSON file: `result.json`, in a *dict* format**.<br/>
