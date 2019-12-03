@@ -24,3 +24,6 @@ To add your own corpuses:
 
 (**NOTE:** You can add multiple JSON files in a category directory)<br/>
 When you run the code, you will find that the `categorize.py` will take the new/modified corpuses into consideration.
+
+## License
+The code is under MIT License
