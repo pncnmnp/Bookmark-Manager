@@ -1,6 +1,6 @@
 newspaper3k==0.2.8
 requests>=2.20.0
-nltk==3.4.5
+nltk==3.6.5
 Scrapy==1.8.0
 beautifulsoup4==4.8.1
 newspaper==0.1.0.7
